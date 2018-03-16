@@ -85,6 +85,12 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\zoraSlika.png" />
+    <None Include="Resources\sabahSlika.png" />
+    <None Include="Resources\aksamSlika.png" />
+    <None Include="Resources\ikindijaSlika.png" />
+    <None Include="Resources\jacijaSlika.png" />
+    <None Include="Resources\podneSlika.png" />
     <Content Include="Resources\Pozadina.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

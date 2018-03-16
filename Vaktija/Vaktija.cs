@@ -384,6 +384,12 @@ namespace Vaktija
         private int visinaForme { get; set; }
         private int sirinaForme { get; set; }
         private Image pozadina { get; set; }
+        private Image zoraSlika { get; set; }
+        private Image sabahSlika { get; set; }
+        private Image podneSlika { get; set; }
+        private Image ikindijaSlika { get; set; }
+        private Image aksamSlika { get; set; }
+        private Image jacijaSlika { get; set; }
         private int[,] x1y1x2y2 { get; set; }
         private double koeficijentVisine { get; set; }
         private double koeficijentSirine { get; set; }
@@ -402,7 +408,7 @@ namespace Vaktija
             PodesiEkran();
             PodesiFormu();
             Podesix1y1x2y2();
-            
+            PodesiNamaskeSlike();
         }
 
         //SKRIVENE STVARI KOJE POMAZU KONSTRUKOTRU
@@ -415,6 +421,23 @@ namespace Vaktija
         {
             object O = Properties.Resources.ResourceManager.GetObject("Pozadina");
             this.pozadina = (Image)O;
+        }
+        private void PodesiNamaskeSlike()
+        {
+            object zora = Properties.Resources.ResourceManager.GetObject("zoraSlika");
+            object sabah = Properties.Resources.ResourceManager.GetObject("sabahSlika");
+            object podne = Properties.Resources.ResourceManager.GetObject("podneSlika");
+            object ikindija = Properties.Resources.ResourceManager.GetObject("ikindijaSlika");
+            object aksam = Properties.Resources.ResourceManager.GetObject("aksamSlika");
+            object jacija = Properties.Resources.ResourceManager.GetObject("jacijaSlika");
+            this.zoraSlika = (Image)zora;
+            this.sabahSlika = (Image)sabah;
+            this.podneSlika = (Image)podne;
+            this.ikindijaSlika = (Image)ikindija;
+            this.aksamSlika = (Image)aksam;
+            this.jacijaSlika = (Image)jacija;
+
+            
         }
         private void PodesiEkran()
         {
@@ -465,6 +488,44 @@ namespace Vaktija
         public Image PodesiPozadinskuSliku()
         {
             return pozadina;
+        }
+
+        public PictureBox DajNamaskuSliku(int namaz)
+        {
+            PictureBox pb = new PictureBox();
+            pb.Location = new Point(ParentKvadratZaNamaskiFrame(namaz)[2] + 30, ParentKvadratZaNamaskiFrame(namaz)[1]);
+            pb.BackColor = Color.Transparent;
+            pb.Size = new Size(50, 50);
+            pb.Visible = false;
+            //Dodaj sliku
+            switch (namaz)
+            {
+                case 0:
+                     pb.Name = "SlikaZora";
+                     pb.Image = this.zoraSlika;
+                    break;
+                case 1:
+                    pb.Name = "SlikaSabah";
+                    pb.Image = this.sabahSlika;
+                    break;
+                case 2:
+                    pb.Name = "SlikaPodne";
+                    pb.Image = this.podneSlika;
+                    break;
+                case 3:
+                    pb.Name = "SlikaIkindija";
+                    pb.Image = this.ikindijaSlika;
+                    break;
+                case 4:
+                    pb.Name = "SlikaAksam";
+                    pb.Image = this.aksamSlika;
+                    break;
+                case 5:
+                    pb.Name = "SlikaJacija";
+                    pb.Image = this.jacijaSlika;
+                    break;
+            }
+            return pb;
         }
         public int[] ParentKvadratZaNamaskiFrame(int i)
         {

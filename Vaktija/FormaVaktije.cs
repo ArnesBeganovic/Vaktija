@@ -104,7 +104,20 @@ namespace Vaktija
                 this.Controls.Add(l[i + 2]);
                 z++;
             }
-           
+
+            //Postavi slike namaskih vremena
+            PictureBox zoraSlika = vp.DajNamaskuSliku(0); 
+            PictureBox sabahSlika = vp.DajNamaskuSliku(1); 
+            PictureBox podneSlika = vp.DajNamaskuSliku(2); 
+            PictureBox ikindijaSlika = vp.DajNamaskuSliku(3); 
+            PictureBox aksamSlika = vp.DajNamaskuSliku(4); 
+            PictureBox jacijaSlika = vp.DajNamaskuSliku(5); 
+            this.Controls.Add(zoraSlika);
+            this.Controls.Add(sabahSlika);
+            this.Controls.Add(podneSlika);
+            this.Controls.Add(ikindijaSlika);
+            this.Controls.Add(aksamSlika);
+            this.Controls.Add(jacijaSlika);
 
         }
         //TBD
@@ -123,7 +136,12 @@ namespace Vaktija
             {
                 Danas = NoviDan();
             }
+            Console.WriteLine("Usao");
+            OznaciTrenutniNamaz(Danas);
+
         }
+
+
         private void PozoviNovuMinutu(object sender, EventArgs e)
         {
             NovaMinuta();
@@ -208,40 +226,60 @@ namespace Vaktija
 
         }
 
-        //private void OznaciTrenutniNamaz(JedanDan Danas)
-        //{
+        private void OznaciTrenutniNamaz(JedanDan Danas)
+        {
 
-        //    int Sat = DateTime.Now.Hour;
-        //    int Minuta = DateTime.Now.Minute;
+            int Sat = DateTime.Now.Hour;
+            int Minuta = DateTime.Now.Minute;
 
-        //    //Pregledaj sabah
-        //    if (Sat>=Danas.ZoraSat && Minuta>=Danas.ZoraMinuta && Sat<Danas.SabahSat && Minuta < Danas.SabahMinuta){
-        //        Console.WriteLine("Usao sabah");
-        //        //lbl_sabah.BackColor = Color.AliceBlue; } else { lbl_sabah.BackColor = Color.AntiqueWhite; 
-        //    }
-        //    //Pregledaj podne
-        //    if (Sat >= Danas.PodneSat && Minuta >= Danas.PodneMinuta && Sat < Danas.IkindijaSat && Minuta < Danas.IkindijaMinuta) {
-        //        Console.WriteLine("Usao podne");
-        //        //lbl_podne.BackColor = Color.AliceBlue; } else { lbl_podne.BackColor = Color.AntiqueWhite; 
-        //    }
-        //    //Pregledaj ikindiju
-        //    if (Sat >= Danas.IkindijaSat && Minuta >= Danas.IkindijaMinuta && Sat < Danas.AksamSat && Minuta < Danas.AksamMinuta) {
-        //        Console.WriteLine("Usao ikindija");
-        //        //lbl_ikindija.BackColor = Color.AliceBlue; } else { lbl_ikindija.BackColor = Color.AntiqueWhite; 
-        //    }
-        //    //Pregledaj aksam
-        //    if (Sat >= Danas.AksamSat && Minuta >= Danas.AksamMinuta && Sat < Danas.JacijaSat && Minuta < Danas.JacijaMinuta) {
-        //        Console.WriteLine("Usao aksam");
-        //        //lbl_aksam.BackColor = Color.AliceBlue; } else { lbl_aksam.BackColor = Color.AntiqueWhite; 
-        //    }
-        //    //Pregledaj jaciju
-        //    if (Sat >= Danas.JacijaSat && Minuta >= Danas.JacijaMinuta) { lbl_jacija.BackColor = Color.AliceBlue; } else {
-        //        Console.WriteLine("Usao jacija");
-        //                        //lbl_jacija.BackColor = Color.AntiqueWhite; 
-        //    }
-        //    Console.WriteLine(Sat + " " + Minuta);
+            Console.WriteLine(Sat.ToString());
+            Console.WriteLine(Minuta.ToString());
+            //Sve nuliraj
+            this.Controls.Find("SlikaJacija", true).FirstOrDefault().Visible = false;
+            this.Controls.Find("SlikaAksam", true).FirstOrDefault().Visible = false;
+            this.Controls.Find("SlikaIkindija", true).FirstOrDefault().Visible = false;
+            this.Controls.Find("SlikaPodne", true).FirstOrDefault().Visible = false;
+            this.Controls.Find("SlikaSabah", true).FirstOrDefault().Visible = false;
+            this.Controls.Find("SlikaZora", true).FirstOrDefault().Visible = false;
 
-        //}
+            //Prikazi samo onu koja odgovara vremenskom intervalu
+
+            //JACIJA
+            if ((Sat==Danas.JacijaSat && Minuta>=Danas.JacijaMinuta)|| Sat > Danas.JacijaSat)
+            {
+                this.Controls.Find("SlikaJacija", true).FirstOrDefault().Visible = true;
+            }
+            //AKSAM
+            else if (
+                (Sat==Danas.AksamSat && Minuta>=Danas.AksamMinuta) || 
+                (Sat>Danas.AksamSat && Sat<Danas.JacijaSat) ||
+                (Sat==Danas.JacijaSat &&Minuta<Danas.JacijaMinuta)
+             ){this.Controls.Find("SlikaAksam", true).FirstOrDefault().Visible = true;}
+            //IKINDIJA
+            else if (
+                (Sat == Danas.IkindijaSat && Minuta >= Danas.IkindijaMinuta) ||
+                (Sat > Danas.IkindijaSat && Sat < Danas.AksamSat) ||
+                (Sat == Danas.AksamSat && Minuta < Danas.AksamMinuta)
+             ) { this.Controls.Find("SlikaIkindija", true).FirstOrDefault().Visible = true; }
+            //PODNE
+            else if (
+                (Sat == Danas.PodneSat && Minuta >= Danas.PodneMinuta) ||
+                (Sat > Danas.PodneSat && Sat < Danas.IkindijaSat) ||
+                (Sat == Danas.IkindijaSat && Minuta < Danas.IkindijaMinuta)
+             ) { this.Controls.Find("SlikaPodne", true).FirstOrDefault().Visible = true; }
+            //SABAH
+            else if (
+                (Sat == Danas.SabahSat && Minuta >= Danas.SabahMinuta) ||
+                (Sat > Danas.SabahSat && Sat < Danas.PodneSat) ||
+                (Sat == Danas.PodneSat && Minuta < Danas.PodneMinuta)
+             ) { this.Controls.Find("SlikaSabah", true).FirstOrDefault().Visible = true; }
+            //ZORA
+            else if (
+                (Sat == Danas.ZoraSat && Minuta >= Danas.ZoraMinuta) ||
+                (Sat > Danas.ZoraSat && Sat < Danas.SabahSat) ||
+                (Sat == Danas.SabahSat && Minuta < Danas.PodneMinuta)
+             ) { this.Controls.Find("SlikaZora", true).FirstOrDefault().Visible = true; }
+        }
 
         //private void UpdateLabel(Label imeLabela,String sadrzaj)
         //{
