@@ -9,8 +9,15 @@ using System.Windows.Forms;
 
 namespace Vaktija
 {
-    class Vaktija
+    /*
+     * U ovom namespacu se nalaze tri klase:
+     * VAKTIJA - koja sadrzi hardcoded databazu sa svim namaskim vremenima
+     * JedanDaa - koja sluzi da se napravi objekat koji ce biti most izmedju VAKTIJE (databaza) i VaktijaProperty (trenutnog datuma sa kojim se radi)
+     * VaktijaProperty - je radna klasa koja sadrzi sve vezano za trenutnu poziciju skripte. 
+     */
+    public class Vaktija
     {
+        //Lista svih dana u godini
         public static List<JedanDan> KreirajVaktiju()
         {
             //Kreiraj listu koju ce funkcija vratiti
@@ -349,9 +356,9 @@ namespace Vaktija
             return kompletnaVaktija;
         }
     }
-
     public class JedanDan
     {
+        //Propertiji potrebni za objekat jednog dana
         public int Mjesec { get; set; }
         public int Dan { get; set; }
 
@@ -373,7 +380,6 @@ namespace Vaktija
         public int JacijaSat { get; set; }
         public int JacijaMinuta { get; set; }
     }
-
     public class VaktijaProperty
     {
         //CAROBNI SASTOJCI VAKTIJE
@@ -400,30 +406,35 @@ namespace Vaktija
         private int fontDvotackaVisina { get; set; }
         private int fontDvotackaSirina { get; set; }
 
-        //KONSTRUKTOR
+        //KONSTRUKTOR - poziva sve funkcije koje preracunavaju potrebne stvari za normalan rad vaktije jer je u pitanju dinamicno prikazivanje
         public VaktijaProperty()
         {
-            PodesiFont();
-            PodesiPozadinu();
+            PodesiFont(); 
+            PodesiPozadinu(); 
             PodesiEkran();
             PodesiFormu();
-            Podesix1y1x2y2();
-            PodesiNamaskeSlike();
+            Podesix1y1x2y2(); //POzicija label-a u koje se upisuju namaska vremena
+            PodesiNamaskeSlike(); //Pozicija slika koje prikazuju trenutni namaz
+            PodesiPozicijuSata(); //POzicija glavnog sata
+            PodesiPomocneSlike(); //Pozicija slika koje se random prikazuju
         }
 
         //SKRIVENE STVARI KOJE POMAZU KONSTRUKOTRU
         private void PodesiFont()
         {
+            //Font je dio resursa
             this.pfc = new PrivateFontCollection();
             this.pfc.AddFontFile(@"C:\Users\arnes.beganovic\source\repos\Vaktija\Vaktija\Resources\digital-7.ttf");
         }
         private void PodesiPozadinu()
         {
+            //Pozadina je dio resursa
             object O = Properties.Resources.ResourceManager.GetObject("Pozadina");
             this.pozadina = (Image)O;
         }
         private void PodesiNamaskeSlike()
         {
+            //Namaske slike su dio resursa
             object zora = Properties.Resources.ResourceManager.GetObject("zoraSlika");
             object sabah = Properties.Resources.ResourceManager.GetObject("sabahSlika");
             object podne = Properties.Resources.ResourceManager.GetObject("podneSlika");
@@ -441,6 +452,7 @@ namespace Vaktija
         }
         private void PodesiEkran()
         {
+            //Podesavanje visine i sirine displeja kako bi se dinamicki postavile ostale stvari
             this.ekran = Screen.PrimaryScreen.WorkingArea;
             this.visinaEkrana = ekran.Height;
             this.sirinaEkrana = ekran.Width;
@@ -448,6 +460,7 @@ namespace Vaktija
         }
         private void PodesiFormu()
         {
+            //Na bazi ekrana podesi izgled forme dinamicki
             this.racioSlike = (Double)pozadina.Height / (double)pozadina.Width;
             this.visinaForme = this.visinaEkrana;
             this.sirinaForme = (int)Math.Round(this.visinaEkrana / this.racioSlike, 1);
@@ -455,7 +468,7 @@ namespace Vaktija
         }
         private void Podesix1y1x2y2()
         {
-            //Finalna verzija koda treba imati neki sistem u kojem ce se uz pozadinu automatski povuci koordinate za predvidjena polja svakog namaza. Do tada koristim hard coded verziju
+            //TBD - Finalna verzija koda treba imati neki sistem u kojem ce se uz pozadinu automatski povuci koordinate za predvidjena polja svakog namaza. Do tada koristim hard coded verziju
             this.x1y1x2y2 = new int[,] { 
                 { 224,290,395,348 }, //Zora 
                 { 224,379,395,437 }, //Izlazak Sunca
@@ -466,9 +479,53 @@ namespace Vaktija
             };
         }
 
-
-
         //JAVNE STVARI DOSTUPNE DRUGIM KLASAMA
+        public void PostaviVelicinuVremenskogFonta(FormaVaktije fv)
+        {
+            //Ova funkcija se racuna u runtime-u zato je public a poziva je sama forma nakon sto se loadira i izgradi radno okruzenje. Treba mi takva da joj dodam label i nadjem
+            //kolika je maksimalna velicina fonta kojeg smijem dodati kako bi se uklopio u nacrtano polje. Radi tako sto uzmem Sabah namaz i napisem 00 te racunam u pravogaoniku koji mi je
+            //zadan.
+            int X1, Y1, X2, Y2;
+            X1 = this.ParentKvadratZaNamaskiFrame(0)[0];
+            Y1 = this.ParentKvadratZaNamaskiFrame(0)[1];
+            X2 = this.ParentKvadratZaNamaskiFrame(0)[2];
+            Y2 = this.ParentKvadratZaNamaskiFrame(0)[3];
+
+            Label testniL = new Label();
+            Label testniD = new Label();
+
+            fv.Controls.Add(testniL);
+            fv.Controls.Add(testniD);
+
+            testniL.Text = "00";
+            testniD.Text = ":";
+
+            testniL.AutoSize = true;
+            testniD.AutoSize = true;
+
+            testniL.Font = new Font(this.FontFamilija(), 1, FontStyle.Regular);
+
+            int n = 1;
+            while (testniL.Height < Y2 - Y1 || testniL.Width < (X2 - X1) / 2)
+            {
+                testniL.Font = new Font(this.FontFamilija(), n, FontStyle.Regular);
+                n++;
+            }
+
+            this.fontVrijemeVisina = testniL.Height + 2; //Dodaj 2 piksela zbog margine
+            this.fontVrijemeSirina = testniL.Width + 2; //Dodaj 2 piksela zbog margine
+
+            //Svrha cijelog koda je da imam izracunatu velicinu fonta kojeg cu koristiti za namaze.
+            this.fontVrijemeSize = n;
+
+            testniD.Font = new Font(this.FontFamilija(), this.fontVrijemeSize, FontStyle.Regular);
+            this.fontDvotackaVisina = testniD.Height + 2; //Dodaj 2 piksela zbog margine
+            this.fontDvotackaSirina = testniD.Width + 2; //Dodaj 2 piksela zbog margine
+
+            fv.Controls.Remove(testniL);
+            fv.Controls.Remove(testniD);
+
+        }
         public int VisinaEkrana()
         {
             return this.visinaEkrana;
@@ -485,13 +542,44 @@ namespace Vaktija
         {
             return visinaForme;
         }
+        public int VelicinaVremenskogFonta()
+        {
+            return this.fontVrijemeSize;
+        }
+        public int VisinaVremenskogFonta()
+        {
+            return this.fontVrijemeVisina;
+        }
+        public int SirinaVremenskogFonta()
+        {
+            return this.fontVrijemeSirina;
+        }
+        public int VisinaDvotackeFonta()
+        {
+            return this.fontDvotackaVisina;
+        }
+        public int SirinaDvotackeFonta()
+        {
+            return this.fontDvotackaSirina;
+        }
+        public int[] ParentKvadratZaNamaskiFrame(int i)
+        {
+            //i je namaz cija vremena zelim povuci. za i bude 0 = zora, 1 = izlazak sunca, 2 = podne, 3 = ikindija, 4=aksam, 5 = jacija
+            //Posto je sve dinamicki moram preracunati poziciju kvadrata za namasko vrijeme na bazi ekrana i pozadinske slike.
+            return new int[] {
+                (int)Math.Round(koeficijentVisine * x1y1x2y2[i,0],0),
+                (int)Math.Round(koeficijentSirine * x1y1x2y2[i,1],0),
+                (int)Math.Round(koeficijentVisine * x1y1x2y2[i,2],0),
+                (int)Math.Round(koeficijentSirine * x1y1x2y2[i,3],0)
+            };
+        }
         public Image PodesiPozadinskuSliku()
         {
             return pozadina;
         }
-
         public PictureBox DajNamaskuSliku(int namaz)
         {
+            //Kreiranje namaskih slika na formi te podesavanje visibility = false. 
             PictureBox pb = new PictureBox();
             pb.Location = new Point(ParentKvadratZaNamaskiFrame(namaz)[2] + 30, ParentKvadratZaNamaskiFrame(namaz)[1]);
             pb.BackColor = Color.Transparent;
@@ -527,86 +615,9 @@ namespace Vaktija
             }
             return pb;
         }
-        public int[] ParentKvadratZaNamaskiFrame(int i)
-        {
-            //i je namaz cija vremena zelim povuci. za i bude 0 = zora, 1 = izlazak sunca, 2 = podne, 3 = ikindija, 4=aksam, 5 = jacija
-            //Posto je sve dinamicki moram preracunati poziciju kvadrata za namasko vrijeme na bazi ekrana i pozadinske slike.
-            return new int[] {
-                (int)Math.Round(koeficijentVisine * x1y1x2y2[i,0],0),
-                (int)Math.Round(koeficijentSirine * x1y1x2y2[i,1],0),
-                (int)Math.Round(koeficijentVisine * x1y1x2y2[i,2],0),
-                (int)Math.Round(koeficijentSirine * x1y1x2y2[i,3],0)
-            };
-        }
         public FontFamily FontFamilija()
         {
             return this.pfc.Families[0];
-        }
-        public void PostaviVelicinuVremenskogFonta(FormaVaktije fv)
-        {
-            //Ova funkcija se racuna u runtime-u zato je public a poziva je sama forma nakon sto se loadira i izgradi radno okruzenje. Treba mi takva da joj dodam label i nadjem
-            //koliki je maksimalna velicina fonta kojeg smijem dodati kako bi se uklopio u nacrtano polje. Radi tako sto uzmem Sabah namaz i napisem 00 te racunam u pravogaoniku koji mi je
-            //zadan.
-            int X1, Y1, X2, Y2;
-            X1 = this.ParentKvadratZaNamaskiFrame(0)[0];
-            Y1 = this.ParentKvadratZaNamaskiFrame(0)[1];
-            X2 = this.ParentKvadratZaNamaskiFrame(0)[2];
-            Y2 = this.ParentKvadratZaNamaskiFrame(0)[3];
-
-            Label testniL = new Label();
-            Label testniD = new Label();
-
-            fv.Controls.Add(testniL);
-            fv.Controls.Add(testniD);
-
-            testniL.Text = "00";
-            testniD.Text = ":";
-
-            testniL.AutoSize = true;
-            testniD.AutoSize = true;
-
-            testniL.Font = new Font(this.FontFamilija(), 1, FontStyle.Regular);
-
-            int n = 1;
-            while (testniL.Height < Y2 - Y1 || testniL.Width<(X2-X1)/2)
-            {
-                testniL.Font = new Font(this.FontFamilija(), n, FontStyle.Regular);
-                n++;
-            }
-
-            this.fontVrijemeVisina = testniL.Height + 2; //Dodaj 2 piksela zbog margine
-            this.fontVrijemeSirina = testniL.Width + 2; //Dodaj 2 piksela zbog margine
-            
-            //Svrha cijelog koda je da imam izracunatu velicinu fonta kojeg cu koristiti za namaze.
-            this.fontVrijemeSize = n;
-
-            testniD.Font = new Font(this.FontFamilija(), this.fontVrijemeSize, FontStyle.Regular);
-            this.fontDvotackaVisina = testniD.Height + 2; //Dodaj 2 piksela zbog margine
-            this.fontDvotackaSirina = testniD.Width + 2; //Dodaj 2 piksela zbog margine
-
-            fv.Controls.Remove(testniL);
-            fv.Controls.Remove(testniD);
-
-        }
-        public int VelicinaVremenskogFonta()
-        {
-            return this.fontVrijemeSize;
-        }
-        public int VisinaVremenskogFonta()
-        {
-            return this.fontVrijemeVisina;
-        }
-        public int SirinaVremenskogFonta()
-        {
-            return this.fontVrijemeSirina;
-        }
-        public int VisinaDvotackeFonta()
-        {
-            return this.fontDvotackaVisina;
-        }
-        public int SirinaDvotackeFonta()
-        {
-            return this.fontDvotackaSirina;
         }
     }
 }

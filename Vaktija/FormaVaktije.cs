@@ -8,6 +8,7 @@ namespace Vaktija
 {
     public partial class FormaVaktije : Form
 	{
+        //Klasa sa formu
         Timer t = new Timer();
         JedanDan Danas = new JedanDan();
         public FormaVaktije()
@@ -40,12 +41,12 @@ namespace Vaktija
             t.Tick += new EventHandler(this.PozoviNovuMinutu); //Kad istekne jedna minuta pozovi funkciju NovaMinuta
             t.Start(); //Pocni brojati minute
         }
-
         private void PripremiLabele(VaktijaProperty vp)
         {
             List<Label> l = new List<Label>(); //labeliZaNamaze
             double X1, Y1, X2, Y2,X3,X4,X5,X6;
             int z = 0;
+            //idi jedan po jedan namaz, izracunaj gdje se label treba postaviti a zatim ga i postavi sa dummy tekstom
             for (int i = 0;i<=17;i+=3)
             {
 
@@ -120,7 +121,6 @@ namespace Vaktija
             this.Controls.Add(jacijaSlika);
 
         }
-        //TBD
         private void NovaMinuta()
         {
             /*
@@ -136,27 +136,26 @@ namespace Vaktija
             {
                 Danas = NoviDan();
             }
-            Console.WriteLine("Usao");
+            //Pregledaj da li se namaz promijenio i updatuj sliku ako jeste.
             OznaciTrenutniNamaz(Danas);
 
         }
-
-
         private void PozoviNovuMinutu(object sender, EventArgs e)
         {
             NovaMinuta();
         }
         private JedanDan NoviDan()
         {
+            //Nadji danasnji dan iz databaze
             List<JedanDan> vaktija = Vaktija.KreirajVaktiju();
             JedanDan novidan = new JedanDan();
             novidan = vaktija.Find(x => (x.Mjesec == DateTime.Now.Month) && (x.Dan == DateTime.Now.Day));
             PopuniNamaskaVremenaZaDanas(novidan);
             return novidan;
         }
-        //TBD
         private void PopuniNamaskaVremenaZaDanas(JedanDan novidan)
         {
+            //Popuni labele ranije pripremljene i pozicionirane sa vremenima iz danasnjeg dana
             Label l0Sat = (Label)Controls.Find("0Sat", true).FirstOrDefault();
             Label l0Min = (Label)Controls.Find("0Minuta", true).FirstOrDefault();
             Label l3Sat = (Label)Controls.Find("3Sat", true).FirstOrDefault();
@@ -225,7 +224,6 @@ namespace Vaktija
             l15Min.TextAlign = ContentAlignment.MiddleRight;
 
         }
-
         private void OznaciTrenutniNamaz(JedanDan Danas)
         {
 
@@ -280,53 +278,6 @@ namespace Vaktija
                 (Sat == Danas.SabahSat && Minuta < Danas.PodneMinuta)
              ) { this.Controls.Find("SlikaZora", true).FirstOrDefault().Visible = true; }
         }
-
-        //private void UpdateLabel(Label imeLabela,String sadrzaj)
-        //{
-        //    imeLabela.Text = sadrzaj;
-        //}
-        //private string DanUSedmici()
-        //{
-        //    String dan = DateTime.Now.DayOfWeek.ToString();
-        //    switch (dan)
-        //    {
-        //        case "Monday":
-        //            dan =  "Ponedjeljak";
-        //            break;
-        //        case "Tuesday":
-        //            dan = "Utorak";
-        //            break;
-        //        case "Wednesday":
-        //            dan = "Srijeda";
-        //            break;
-        //        case "Thursday":
-        //            dan = "Cetvrtak";
-        //            break;
-        //        case "Friday":
-        //            dan = "Petak";
-        //            break;
-        //        case "Saturday":
-        //            dan = "Subota";
-        //            break;
-        //        case "Sunday":
-        //            dan = "Nedjelja";
-        //            break;
-        //    }
-        //    return dan;
-        //}
-
-        //private string VrijemeNamaza(String imeLabela,JedanDan sadrzajDana)
-        //{
-        //    String vratiVrijemeNamaza = "";
-        //    String minuta;
-        //    String sat;
-        //    minuta = "0" + sadrzajDana.GetType().GetProperty(imeLabela + "Minuta").GetValue(sadrzajDana, null).ToString();
-        //    sat = "0" + sadrzajDana.GetType().GetProperty(imeLabela + "Sat").GetValue(sadrzajDana, null).ToString();
-        //    vratiVrijemeNamaza = sat.Substring(sat.Length - 2,2) + ":" + minuta.Substring(minuta.Length - 2, 2);
-        //    return vratiVrijemeNamaza;
-        //}
-
-        ////}
 
     }
 }
